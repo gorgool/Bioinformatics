@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <numeric>
 #include <map>
 
 using namespace std;
@@ -21,7 +22,7 @@ vector<string> find_clumps(const string& input_str, size_t k, size_t L, size_t t
 		}
 		else
 		{
-			tbl.insert(make_pair(substr, vector<size_t>()));
+			tbl.insert(make_pair(substr, vector<size_t>{i}));
 		}
 	}
 
@@ -34,8 +35,28 @@ vector<string> find_clumps(const string& input_str, size_t k, size_t L, size_t t
 			filtered_tbl.insert(item);
 	}
 
+
+	vector<string> ret;
 	// Filter by L
-	
+	for (const auto& entry : filtered_tbl)
+	{
+		vector<size_t> window;
+		for (auto item : entry.second)
+		{
+			window.push_back(item);
+
+			if ((window[window.size() - 1] - window[0]) > L)
+			{
+				window = vector<size_t>(window.begin() + 1, window.end());
+			}
+
+			if (window.size() == t && (window[window.size() - 1] - window[0]) <= L)
+			{
+				ret.push_back(entry.first);
+				break;
+			}
+		}
+	}
 
 	return ret;
 }
