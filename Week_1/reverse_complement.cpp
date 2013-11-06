@@ -11,11 +11,12 @@ map<char, char> pairs =
 	make_pair('G', 'C')
 };
 
-string reverse_complement(string& input_str)
+string reverse_complement(const string& input_str)
 {
+  string ret(input_str);
 	for (size_t i = 0; i < input_str.length(); i++)
 	{
-		input_str[i] = pairs[input_str[i]];
+		ret[i] = pairs[input_str[i]];
 	}
-	return string(input_str.rbegin(), input_str.rend());
+  return string(ret.rbegin(), ret.rend());
 }

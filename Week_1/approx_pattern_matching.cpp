@@ -20,5 +20,14 @@ static size_t max_num_misses(const string& input, const string& original)
 
 vector<size_t> approx_pattern_matching(const string& input_str, const string& pattern, size_t k)
 {
+  vector<size_t> ret;
 
+  for (size_t i = 0; i <= input_str.length() - pattern.length(); i++)
+  {
+    string substr = input_str.substr(i, pattern.length());
+    if (max_num_misses(substr, pattern) <= k)
+      ret.push_back(i);
+  }
+
+  return ret;
 }
