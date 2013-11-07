@@ -94,10 +94,23 @@ vector<string> approx_most_freq_substr(const string& input_str, size_t k, size_t
   string start_pattern(k, 'A');
   vector<thread> workers;
 
-  for (size_t i = 0; i < num_threads; i++)
+  if (num_threads == 1)
+    workers.push_back(thread(worker, start_pattern));
+    
+  if (num_threads == 2)
   {
     workers.push_back(thread(worker, start_pattern));
-    start_pattern[0] = alphabeth[start_pattern[0]];
+    start_pattern[0] = 'C';
+    workers.push_back(thread(worker, start_pattern));
+  }
+  
+  if(num_threads == 4)
+  {
+    for (size_t i = 0; i < num_threads; i++)
+    {
+      workers.push_back(thread(worker, start_pattern));
+      start_pattern[0] = alphabeth[start_pattern[0]];
+    }
   }
   
   for (auto& thread_item : workers)
