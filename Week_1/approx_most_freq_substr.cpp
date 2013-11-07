@@ -1,9 +1,11 @@
 #include <string>
 #include <vector>
-#include <set>
 #include <map>
 #include <algorithm>
 #include <cassert>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 using namespace std;
 
@@ -28,7 +30,7 @@ static string next_pattern(const string& prev_pattern)
 
 static size_t max_num_misses(const string& input, const string& original)
 {
-  assert(input.length() == original.length(), "Error. Length of input strings must be equal.");
+  assert(input.length() == original.length());
 
   size_t num = 0;
   for (size_t i = 0; i < input.length(); i++)
@@ -40,8 +42,11 @@ static size_t max_num_misses(const string& input, const string& original)
   return num;
 }
 
-vector<string> approx_most_freq_substr(const string& input_str, size_t k, size_t d)
+vector<string> approx_most_freq_substr(const string& input_str, size_t k, size_t d, size_t num_threads)
 {
+  assert(num_threads <= thread::hardware_concurrency());
+  assert(num_threads == 1 || num_threads == 2 || num_threads == 4);
+
   vector<string> tbl;
 
   for (size_t i = 0; i <= input_str.size() - k; i++)
@@ -50,33 +55,53 @@ vector<string> approx_most_freq_substr(const string& input_str, size_t k, size_t
     tbl.push_back(substr);
   }
 
-  string pattern(k, 'A');
-  size_t max_score = 0;
+  mutex m;
+  atomic<size_t> max_score(0);
   vector<string> ret;
-  for (size_t i = 0; i < pow(4, k) - 1; i++)
+
+  auto worker = [&](const string start_pattern)
   {
-    size_t score = 0;
-
-    for (const auto& entry : tbl)
+    string pattern = start_pattern;
+    for (size_t i = 0; i < pow(4, k) / num_threads - 1; i++)
     {
-      if (max_num_misses(pattern, entry) <= d)
-        score++;
-    }
-
-    if (score >= max_score && score > 0)
-    {
-      if (score == max_score)
-        ret.push_back(pattern);
-      else
+      size_t score = 0;
+      for (const auto& entry : tbl)
       {
-        ret.clear();
-        ret.push_back(pattern);
+        if (max_num_misses(pattern, entry) <= d)
+          score++;
       }
-      max_score = score;
-    }
 
-    pattern = next_pattern(pattern);
+      if (score > 0)
+      {
+        if (score >= max_score.load())
+          if (score == max_score.load())
+          {
+            lock_guard<mutex> lg(m);
+            ret.push_back(pattern);
+          }
+          else
+          {
+            max_score.store(score);
+            lock_guard<mutex> lg(m);
+            ret.clear();
+            ret.push_back(pattern);
+          }
+      }
+      pattern = next_pattern(pattern);
+    }
+  };
+
+  string start_pattern(k, 'A');
+  vector<thread> workers;
+
+  for (size_t i = 0; i < num_threads; i++)
+  {
+    workers.push_back(thread(worker, start_pattern));
+    start_pattern[0] = alphabeth[start_pattern[0]];
   }
+  
+  for (auto& thread_item : workers)
+    thread_item.join();
 
   return ret;
 }
