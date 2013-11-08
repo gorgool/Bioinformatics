@@ -7,7 +7,7 @@
 
 using namespace std;
 
-vector<set<size_t>> generate_cyclopeptide(vector<size_t>& mass_spectrum);
+vector<vector<size_t>> generate_cyclopeptide(vector<size_t>& mass_spectrum);
 
 int main()
 {
