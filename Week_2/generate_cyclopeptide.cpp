@@ -7,7 +7,7 @@
 
 using namespace std;
 
-static vector<vector<size_t>> expand(const vector<size_t> start_seq, const size_t specturm_length, const size_t step)
+static vector<vector<size_t>> expand(const vector<size_t>& start_seq, const size_t specturm_length, const size_t step)
 {
   vector<vector<size_t>> ret;
 
@@ -29,7 +29,7 @@ static vector<vector<size_t>> expand(const vector<size_t> start_seq, const size_
       new_seq.push_back(i);
 
     if (new_seq.size() == step)
-      ret.push_back(new_seq);
+      ret.push_back(move(new_seq));
   }
 
   return ret;
@@ -73,7 +73,9 @@ static size_t compute_mass(const string& proteins)
 static vector<size_t> generate_spectrum(const string& proteins)
 {
   vector<size_t> ret;
+
   ret.push_back(0);
+
   for (size_t i = 1; i < proteins.length(); i++)
   {
     for (size_t j = 0; j < proteins.length(); j++)
@@ -81,17 +83,17 @@ static vector<size_t> generate_spectrum(const string& proteins)
       if (i + j <= proteins.length())
       {
         string substr = proteins.substr(j, i);
-        ret.push_back(compute_mass(substr));
+        ret.push_back(move(compute_mass(substr)));
       }
     }
   }
-  ret.push_back(compute_mass(proteins));
+  ret.push_back(move(compute_mass(proteins)));
 
   return ret;
 }
 
 
-static vector<vector<size_t>> filter_seq(vector < vector < size_t >> &list, vector<size_t>& mass_spectrum, map<size_t, size_t>& mass_tbl)
+static vector<vector<size_t>> filter_seq(vector<vector<size_t>> &list, vector<size_t>& mass_spectrum, map<size_t, size_t>& mass_tbl)
 {
   vector<vector<size_t>> ret;
 
@@ -145,12 +147,13 @@ vector<vector<size_t>> generate_cyclopeptide(vector<size_t>& mass_spectrum)
   for (size_t i = 2; i <= spec.size(); i++)
   {
     vector<vector<size_t>> new_list;
+
     for (const auto& seq : list)
     {
       vector<vector<size_t>> new_seqs = expand(seq, spec.size(), i);
 
       for (const auto& new_seq : new_seqs)
-        new_list.push_back(new_seq);
+        new_list.push_back(move(new_seq));
     }
 
     list.resize(new_list.size());
@@ -159,14 +162,14 @@ vector<vector<size_t>> generate_cyclopeptide(vector<size_t>& mass_spectrum)
     list = filter_seq(list, mass_spectrum, mass_tbl);
   }
 
-  // Transform indecies in mass and filtering duplicates (due to peteating masses in spectrum)
+  // Transform indecies in masses and filtering duplicates (due to repeating masses in spectrum)
   set<vector<size_t>> filtered_mass_list;
   for (const auto& seq : list)
   {
     vector<size_t> mass_seq;
     for (const auto idx : seq)
       mass_seq.push_back(mass_tbl[idx]);
-    filtered_mass_list.insert(mass_seq);
+    filtered_mass_list.insert(move(mass_seq));
   }
 
   return vector<vector<size_t>>(filtered_mass_list.begin(), filtered_mass_list.end());
