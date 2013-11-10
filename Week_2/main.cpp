@@ -12,13 +12,26 @@ vector<vector<size_t>> generate_cyclopeptide(vector<size_t>& mass_spectrum);
 int main()
 {
   string input_str;
-  //cin >> input_str;
-  input_str = "0 71 97 99 103 113 113 114 115 131 137 196 200 202 208 214 226 227 228 240 245 299 311 311 316 327 337 339 340 341 358 408 414 424 429 436 440 442 453 455 471 507 527 537 539 542 551 554 556 566 586 622 638 640 651 653 657 664 669 679 685 735 752 753 754 756 766 777 782 782 794 848 853 865 866 867 879 885 891 893 897 956 962 978 979 980 980 990 994 996 1022 1093";
+  //getline(cin, input_str);
+  input_str = "0 71 87 101 101 103 114 115 128 128 156 172 199 201 202 204 215 229 243 259 284 286 300 300 302 316 330 332 360 373 387 399 401 403 414 417 444 486 488 488 488 501 502 504 515 545 559 589 600 602 603 616 616 616 618 660 687 690 701 703 705 717 731 744 772 774 788 802 804 804 818 820 845 861 875 889 900 902 903 905 932 948 976 976 989 990 1001 1003 1003 1017 1033 1104";
 
   istringstream iss(input_str);
   vector<size_t> mass_spectrum(istream_iterator<size_t>{iss}, istream_iterator<size_t>());
 
   auto ret = generate_cyclopeptide(mass_spectrum);
+
+  for (const auto& seq : ret)
+  {
+    for (size_t i = 0; i < seq.size(); ++i)
+    {
+      cout << seq[i];
+      if (i < seq.size() - 1)
+        cout << "-";
+    }
+    cout << " ";
+  }
+
+  cin.ignore();
 
   return 0;
 }
