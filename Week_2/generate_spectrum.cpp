@@ -1,9 +1,9 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 #include <numeric>
 #include <cassert>
+#include <algorithm>
 
 using namespace std;
 
@@ -59,19 +59,65 @@ static string get_substr(const string& str, size_t from, size_t length)
   return ret;
 }
 
-vector<size_t> generate_spectrum(const string& proteins)
+vector<size_t> generate_circular_spectrum(const string& peptide)
 {
   vector<size_t> ret;
   ret.push_back(0);
-  for (size_t i = 1; i < proteins.length(); i++)
+  for (size_t i = 1; i < peptide.length(); i++)
   {
-    for (size_t j = 0; j < proteins.length(); j++)
+    for (size_t j = 0; j < peptide.length(); j++)
     {
-      string substr = get_substr(proteins, j, i);
+      string substr = get_substr(peptide, j, i);
       ret.push_back(compute_mass(substr));
     }
   }
-  ret.push_back(compute_mass(proteins));
+  ret.push_back(compute_mass(peptide));
+  sort(ret.begin(), ret.end());
+  return ret;
+}
 
+vector<size_t> generate_linear_spectrum(const string& peptide)
+{
+  vector<size_t> ret;
+  ret.push_back(0);
+
+  for (size_t i = 1; i < peptide.length(); i++)
+  {
+    for (size_t j = 0; j < peptide.length(); j++)
+    {
+      if (i + j <= peptide.length())
+      {
+        string substr = peptide.substr(j, i);
+        ret.push_back(compute_mass(substr));
+      }
+    }
+  }
+  ret.push_back(compute_mass(peptide));
+
+  return ret;
+}
+
+vector<size_t> generate_circular_spectrum(const vector<size_t>& peptide)
+{
+  vector<size_t> ret;
+  ret.push_back(0);
+  for (size_t i = 1; i < peptide.size(); i++)
+  {
+    for (size_t j = 0; j < peptide.size(); j++)
+    {
+      vector<size_t> range;
+      if (i + j > peptide.size())
+      {
+        range = vector<size_t>(peptide.begin() + j, peptide.end());
+        range.insert(range.end(), peptide.begin(), peptide.begin() + peptide.size() - i);
+      }
+      else
+        range = vector<size_t>(peptide.begin() + j, peptide.begin() + j + i);
+
+      ret.push_back(accumulate(range.begin(), range.end(), 0));
+    }
+  }
+  ret.push_back(accumulate(peptide.begin(), peptide.end(), 0));
+  sort(ret.begin(), ret.end());
   return ret;
 }
