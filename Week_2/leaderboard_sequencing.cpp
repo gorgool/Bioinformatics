@@ -7,7 +7,7 @@ using namespace std;
 vector<size_t> mass_list{ 57, 71, 87, 97, 99, 101, 103, 113, 114, 115, 128, 129, 131, 137, 147, 156, 163, 186 };
 vector<size_t> generate_circular_spectrum(const vector<size_t>& peptide);
 
- size_t score(const vector<size_t>& test_spectrum, const vector<size_t>& model_spectrum)
+ static size_t score(const vector<size_t>& test_spectrum, const vector<size_t>& model_spectrum)
 {
   int m_idx = 0, t_idx = 0;
 
