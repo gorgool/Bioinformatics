@@ -11,26 +11,7 @@ using namespace std;
 vector<size_t> mass_list{ 57, 71, 87, 97, 99, 101, 103, 113, 114, 115, 128, 129, 131, 137, 147, 156, 163, 186 };
 vector<size_t> generate_circular_spectrum(const vector<size_t>& peptide);
 
-static vector<pair<vector<size_t>, size_t>> expand(const vector<pair<vector<size_t>, size_t>>& start_seq)
-{
-  vector<pair<vector<size_t>, size_t>> ret;
-
-  for (const auto& peptide : start_seq)
-  {
-    for (const auto mass : mass_list)
-    {
-      pair<vector<size_t>, size_t> new_seq(peptide);
-      new_seq.first.push_back(mass);
-      new_seq.second = 0;
-
-      ret.push_back(move(new_seq));
-    }
-  }
-
-  return ret;
-}
-
-static size_t score(const vector<size_t>& test_spectrum,const vector<size_t>& model_spectrum)
+ size_t score(const vector<size_t>& test_spectrum, const vector<size_t>& model_spectrum)
 {
   int m_idx = 0, t_idx = 0;
 
@@ -79,14 +60,34 @@ static size_t score(const vector<size_t>& test_spectrum,const vector<size_t>& mo
   return score;
 }
 
-static void filter(vector<pair<vector<size_t>, size_t>>& board, const vector<size_t>& mass_spectrum, size_t N, const size_t highest_score)
+static vector<pair<vector<size_t>, size_t>> expand(const vector<pair<vector<size_t>, size_t>>& start_seq, const vector<size_t>& mass_spectrum)
 {
   vector<pair<vector<size_t>, size_t>> ret;
 
-  // Compute score for every peptide in board
-  for (auto& peptide : board)
-    peptide.second = score(generate_circular_spectrum(peptide.first), mass_spectrum);
-    
+  for (const auto& peptide : start_seq)
+  {
+    for (const auto mass : mass_list)
+    {
+      pair<vector<size_t>, size_t> new_seq(peptide);
+      new_seq.first.push_back(mass);
+
+      vector<size_t> spectrum = generate_circular_spectrum(new_seq.first);
+
+      if (spectrum[spectrum.size() - 1] > mass_spectrum[mass_spectrum.size() - 1])
+        continue;
+
+      new_seq.second = score(spectrum, mass_spectrum);
+
+      ret.push_back(move(new_seq));
+    }
+  }
+
+  return ret;
+}
+
+static void filter(vector<pair<vector<size_t>, size_t>>& board, const vector<size_t>& mass_spectrum, size_t N)
+{
+  vector<pair<vector<size_t>, size_t>> ret;
 
   sort(board.begin(), board.end(), []
     (const pair<vector<size_t>, size_t>& lhs, const pair<vector<size_t>, size_t>& rhs)
@@ -94,38 +95,17 @@ static void filter(vector<pair<vector<size_t>, size_t>>& board, const vector<siz
     return lhs.second > rhs.second;
   });
 
-
-  // Simplify !!!
-  set<size_t> scores;
-  for (auto& peptide : board)
-  {
-    if (scores.size() == N)
-      break;
-
-    int mass = accumulate(peptide.first.begin(), peptide.first.end(), 0);
-
-    if (mass > mass_spectrum[mass_spectrum.size() - 1])
-      continue;
-
-    if (!binary_search(mass_spectrum.begin(), mass_spectrum.end(), mass))
-      continue;
-
-    scores.insert(peptide.second);
-    ret.push_back(move(peptide));
-  }
-
-  board.resize(ret.size());
-  copy(ret.begin(), ret.end(), board.begin());
+  if (board.size() < N)
+    return;
+  else
+    board.resize(N);
 
   return;
 }
 
-static size_t get_leaders(const vector<pair<vector<size_t>, size_t>>& board, vector<pair<vector<size_t>, size_t>>& leaders, const size_t highest_score)
+static size_t get_leaders(const vector<pair<vector<size_t>, size_t>>& board, vector<pair<vector<size_t>, size_t>>& leaders)
 {
   size_t best_score = board[0].second;
-
-  //if (best_score < highest_score)
-  //  return highest_score;
 
   size_t last_score = best_score, idx = 0;
   auto it = board.begin();
@@ -159,12 +139,11 @@ vector<pair<vector<size_t>, size_t>> leaderboard_sequencing(vector<size_t>& mass
   while (!next_iter.empty())
   {
     // Copy highest score item in leaderborad
-    highest_score = get_leaders(next_iter, leaderboard, highest_score);
-    next_iter = expand(next_iter);
-    filter(next_iter, mass_spectrum, N, highest_score);
+    get_leaders(next_iter, leaderboard);
+    next_iter = expand(next_iter, mass_spectrum);
+    cout << next_iter.size() << endl;
+    filter(next_iter, mass_spectrum, N);
   }
-
-  
 
   return leaderboard;
 }
