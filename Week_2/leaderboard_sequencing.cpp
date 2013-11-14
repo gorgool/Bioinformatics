@@ -4,10 +4,9 @@
 
 using namespace std;
 
-vector<size_t> mass_list{ 57, 71, 87, 97, 99, 101, 103, 113, 114, 115, 128, 129, 131, 137, 147, 156, 163, 186 };
 vector<size_t> generate_circular_spectrum(const vector<size_t>& peptide);
 
- static size_t score(const vector<size_t>& test_spectrum, const vector<size_t>& model_spectrum)
+size_t score(const vector<size_t>& test_spectrum, const vector<size_t>& model_spectrum)
 {
   int m_idx = 0, t_idx = 0;
 
@@ -56,7 +55,8 @@ vector<size_t> generate_circular_spectrum(const vector<size_t>& peptide);
   return score;
 }
 
-static vector<pair<vector<size_t>, size_t>> expand(const vector<pair<vector<size_t>, size_t>>& start_seq, const vector<size_t>& mass_spectrum)
+vector<pair<vector<size_t>, size_t>> 
+expand(const vector<pair<vector<size_t>, size_t>>& start_seq, const vector<size_t>& mass_spectrum, vector<size_t>& mass_list)
 {
   vector<pair<vector<size_t>, size_t>> ret;
 
@@ -92,7 +92,11 @@ static void filter(vector<pair<vector<size_t>, size_t>>& board, const vector<siz
   return;
 }
 
-vector<size_t> leaderboard_sequencing(vector<size_t>& mass_spectrum, const size_t N)
+vector<size_t> 
+leaderboard_sequencing(
+  vector<size_t>& mass_spectrum, 
+  const size_t N, 
+  vector<size_t>& mass_list = vector<size_t>{ 57, 71, 87, 97, 99, 101, 103, 113, 114, 115, 128, 129, 131, 137, 147, 156, 163, 186 })
 {
   vector<pair<vector<size_t>, size_t>> leaderboard;
   pair<vector<size_t>, size_t> leader_peptide;
@@ -104,7 +108,7 @@ vector<size_t> leaderboard_sequencing(vector<size_t>& mass_spectrum, const size_
 
   while (!leaderboard.empty())
   {
-    leaderboard = expand(leaderboard, mass_spectrum);
+    leaderboard = expand(leaderboard, mass_spectrum, mass_list);
     vector<pair<vector<size_t>, size_t>> new_leaderboard;
 
     for (auto& peptide : leaderboard)
@@ -114,7 +118,6 @@ vector<size_t> leaderboard_sequencing(vector<size_t>& mass_spectrum, const size_
       {
         if (peptide.second > leader_peptide.second)
         {
-          leader_peptide.first.clear();
           leader_peptide = peptide;
         }
       }
