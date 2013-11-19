@@ -4,23 +4,25 @@
 
 using namespace std;
 
-string median_string(const vector<string>& dna, const size_t k);
+vector<string> greedy_motif_search(const vector<string>& dna, const size_t k, const size_t t);
 
 int main()
 {
-  size_t k;
-  cin >> k;
+  size_t k, t;
+  cin >> k >> t;
   cin.ignore();
-  //k = 3;
+  //k = 3, t = 5;
 
-  vector<string> dna;
   string input_str;
-  while (cin >> input_str)
+  vector<string> dna;
+  
+  while(cin >> input_str)
     dna.push_back(input_str);
 
-  auto ret = median_string(dna, k);
+  auto ret = greedy_motif_search(dna, k, t);
 
-  cout << ret;
+  for (const auto& item : ret)
+    cout << item << endl;
 
   return 0;
 }
