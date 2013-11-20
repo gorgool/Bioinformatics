@@ -9,7 +9,7 @@ using namespace std;
 
 string most_prob_kmer(const string& dna, const size_t k, const vector<map<char, double>>& profile);
 
-static vector<map<char, double>> eval_profile(const vector<string>& motifs)
+vector<map<char, double>> eval_profile(const vector<string>& motifs)
 {
   vector<map<char, double>> ret;
   for (size_t idx = 0; idx < motifs[0].length(); ++idx)
@@ -48,7 +48,7 @@ static size_t max_num_misses(const string& input, const string& original)
 }
 
 // Hamming distance
-static size_t score(const vector<string>& motifs)
+size_t score(const vector<string>& motifs)
 {
   string consensus;
   for (size_t idx = 0; idx < motifs[0].length(); ++idx)
@@ -85,7 +85,7 @@ vector<string> greedy_motif_search(const vector<string>& dna, const size_t k, co
   {
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<size_t> range(0, dna[0].length() - k + 1);
+    uniform_int_distribution<size_t> range(0, dna[0].length() - k);
     for (const auto& dna_string : dna)
     {
       best_motifs.push_back(dna_string.substr(range(gen), k));
