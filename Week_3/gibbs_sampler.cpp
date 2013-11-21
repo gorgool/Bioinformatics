@@ -64,7 +64,7 @@ static string random_motif(vector<map<char, double>>& profile, const string& dna
 
   // Normalize
   double sum = accumulate(prob_tbl.begin(), prob_tbl.end(), 0.0, [](double total, const pair<string, double>& item){ return total + item.second; });
-  for (auto item : prob_tbl)
+  for (auto& item : prob_tbl)
     item.second = item.second / sum;
 
   random_device rd;
