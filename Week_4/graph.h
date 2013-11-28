@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <algorithm>
 
 struct node;
 
@@ -22,4 +23,8 @@ struct node
 struct graph
 {
   std::vector<node> nodes;
+  std::vector<node>::iterator find_node(const std::string name)
+  {
+    return find_if(nodes.begin(), nodes.end(), [&](const node& item) { return item.data == name; });
+  }
 };
