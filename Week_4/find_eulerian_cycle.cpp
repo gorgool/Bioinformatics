@@ -4,7 +4,7 @@
 
 using namespace std;
 
-static vector<string> traverse_tour(graph& _graph, vector<node>::iterator begin_node)
+static vector<string> traverse_tour(graph& _graph, list<node>::iterator begin_node)
 {
   vector<string> ret;
   bool end_tour = false;
@@ -46,7 +46,7 @@ static vector<string>::iterator find_rotation_point(graph& _graph, vector<string
 vector<string> find_eulerian_cycle(graph& _graph)
 {
   vector<string> ret;
-  vector<node>::iterator begin_node = _graph.nodes.begin();
+  list<node>::iterator begin_node = _graph.nodes.begin();
 
   while (true)
   {
