@@ -1,29 +1,23 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <list>
-#include <algorithm>
+#include <map>
 
-struct node;
+struct node_m;
 
-struct edge
+struct edge_m
 {
   std::string name;
-  std::list<node>::iterator to;
+  std::map<std::string, node_m>::iterator to;
   bool visited;
 };
 
-struct node
+struct node_m
 {
-  std::string data;
-  std::vector<edge> output_edges;
+  std::vector<edge_m> output_edges;
 };
 
-struct graph
+struct graph_m
 {
-  std::list<node> nodes;
-  std::list<node>::iterator find_node(const std::string name)
-  {
-    return find_if(nodes.begin(), nodes.end(), [&](const node& item) { return item.data == name; });
-  }
+  std::map<std::string, node_m> nodes;
 };

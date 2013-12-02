@@ -1,28 +1,29 @@
 #include <vector>
 #include <string>
+#include <list>
 #include <cassert>
-#include "../Week_4/graph.h"
+#include "graph.h"
 
 using namespace std;
 
-vector<string> find_eulerian_cycle(graph& g);
+list<map<string, node_m>::iterator> find_eulerian_cycle(graph_m& g);
 
-vector<string> find_eulerian_path(graph& _graph)
+list<map<string, node_m>::iterator> find_eulerian_path(graph_m& _graph)
 {
   string from_name;
-  vector<list<node>::iterator> special_nodes;
-  string rotation_node_name;
+  vector<map<string, node_m>::iterator> special_nodes;
+  map<string, node_m>::iterator rotation_node;
   enum { prev, curr } rotation_type;
 
   // Find special nodes, such that num of input edges != num of output edges
   for (auto it = _graph.nodes.begin(); it != _graph.nodes.end(); ++it)
   {
-    size_t n_edges = it->output_edges.size();
+    size_t n_edges = it->second.output_edges.size();
     size_t count = 0;
     for (const auto& n : _graph.nodes)
     {
-      for (const auto& oe : n.output_edges)
-        if (oe.to->data == it->data)
+      for (const auto& oe : n.second.output_edges)
+        if (oe.to->first == it->first)
           count++;
     }
     if (count != n_edges)
@@ -31,7 +32,7 @@ vector<string> find_eulerian_path(graph& _graph)
       // Find rotation node
       if (count + n_edges == 1)
       {
-        rotation_node_name = it->data;
+        rotation_node = it;
         // Type of rotation node
         rotation_type = (count == 1) ? prev : curr;
       }
@@ -40,28 +41,21 @@ vector<string> find_eulerian_path(graph& _graph)
   
   if (!special_nodes.empty())
   {
-    if (special_nodes.size() != 2)
-      return vector<string>();
-
     // Connect special nodes, such that graph become Eulerian
-    if (special_nodes[0]->output_edges.empty())
-      special_nodes[0]->output_edges.emplace_back(edge{ "", special_nodes[1], false });
+    if (special_nodes[0]->second.output_edges.empty())
+      special_nodes[0]->second.output_edges.emplace_back(edge_m{ "", special_nodes[1], false });
     else
-      special_nodes[1]->output_edges.emplace_back(edge{ "", special_nodes[0], false });
+      special_nodes[1]->second.output_edges.emplace_back(edge_m{ "", special_nodes[0], false });
   }
-
+  
   // Find Eulerian cycle
   auto ret = find_eulerian_cycle(_graph);
-  
-  // Trancate last node (first and last node are the same)
-  ret.resize(ret.size() - 1);
-  
+
   if (!special_nodes.empty())
   {
     // Rotate around rotation node
-    auto rotate_node = find(ret.begin(), ret.end(), rotation_node_name);
-    rotate_node = rotation_type == prev ? ++rotate_node : rotate_node;
-    rotate(ret.begin(), rotate_node, ret.end());
+    rotation_node = rotation_type == prev ? ++rotation_node : rotation_node;
+    //rotate(ret.begin(), rotation_node, ret.end());
   }
   
   return ret;
