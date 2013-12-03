@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <iostream>
 #include <list>
 #include "graph.h"
 
@@ -16,7 +17,7 @@ string string_reconstruct(graph_m& g)
 
   while (true)
   {
-    if (distance(it, strings.end()) >= (*strings.begin())->first.size())
+    if (distance(it, strings.end()) > (*strings.begin())->first.size())
     {
       advance(it, (*strings.begin())->first.size());
       ret += (*it)->first;
@@ -24,7 +25,7 @@ string string_reconstruct(graph_m& g)
     }
     
     auto last = (*strings.rbegin())->first;
-    ret += string(last.begin() + last.size() - distance(it, strings.end()), last.end());
+    ret += string(last.begin() + last.size() - distance(it, strings.end()) + 1, last.end());
     break;
   }
 

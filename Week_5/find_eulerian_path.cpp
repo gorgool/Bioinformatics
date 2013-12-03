@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include <cassert>
+#include <algorithm>
 #include "graph.h"
 
 using namespace std;
@@ -10,11 +11,8 @@ list<map<string, node_m>::iterator> find_eulerian_cycle(graph_m& g);
 
 list<map<string, node_m>::iterator> find_eulerian_path(graph_m& _graph)
 {
-  string from_name;
-  vector<map<string, node_m>::iterator> special_nodes;
-  map<string, node_m>::iterator rotation_node;
-  enum { prev, curr } rotation_type;
-
+  vector<pair<map<string, node_m>::iterator, size_t>> special_nodes;
+  enum { from0to1, from1to0 } direction;
   // Find special nodes, such that num of input edges != num of output edges
   for (auto it = _graph.nodes.begin(); it != _graph.nodes.end(); ++it)
   {
@@ -27,25 +25,16 @@ list<map<string, node_m>::iterator> find_eulerian_path(graph_m& _graph)
           count++;
     }
     if (count != n_edges)
-    {
-      special_nodes.push_back(it);
-      // Find rotation node
-      if (count + n_edges == 1)
-      {
-        rotation_node = it;
-        // Type of rotation node
-        rotation_type = (count == 1) ? prev : curr;
-      }
-    }    
+      special_nodes.push_back({ it, count });
   }
   
   if (!special_nodes.empty())
   {
     // Connect special nodes, such that graph become Eulerian
-    if (special_nodes[0]->second.output_edges.empty())
-      special_nodes[0]->second.output_edges.emplace_back(edge_m{ "", special_nodes[1], false });
+    if (special_nodes[0].first->second.output_edges.size() < special_nodes[0].second)
+      special_nodes[0].first->second.output_edges.emplace_back(edge_m{ "", special_nodes[1].first, false }), direction = from0to1;
     else
-      special_nodes[1]->second.output_edges.emplace_back(edge_m{ "", special_nodes[0], false });
+      special_nodes[1].first->second.output_edges.emplace_back(edge_m{ "", special_nodes[0].first, false }), direction = from1to0;
   }
   
   // Find Eulerian cycle
@@ -53,9 +42,24 @@ list<map<string, node_m>::iterator> find_eulerian_path(graph_m& _graph)
 
   if (!special_nodes.empty())
   {
-    // Rotate around rotation node
-    rotation_node = rotation_type == prev ? ++rotation_node : rotation_node;
-    //rotate(ret.begin(), rotation_node, ret.end());
+    auto from = direction == from0to1 ? special_nodes[0].first->first : special_nodes[1].first->first;
+    auto to = direction == from0to1 ? special_nodes[1].first->first : special_nodes[0].first->first;
+
+    list<map<string, node_m>::iterator>::iterator rotation_point = [&]()
+    {
+      for (auto it = ret.begin(); it != ret.end(); ++it)
+      {
+        if ((*it)->first == from)
+        {
+          auto it_cpy = it; ++it_cpy;
+          if ((*it_cpy)->first == to)
+            return it_cpy;
+        }
+      }
+      return ret.end();
+    }();
+  
+    rotate(ret.begin(), rotation_point, ret.end());
   }
   
   return ret;

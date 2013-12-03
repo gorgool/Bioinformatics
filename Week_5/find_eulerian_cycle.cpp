@@ -14,7 +14,7 @@ static list<map<string, node_m>::iterator> traverse_tour(graph_m& _graph, map<st
   while (!end_tour)
   {
     end_tour = true;
-    ret.push_front(begin_node);
+    ret.push_back(begin_node);
 
     for (auto& item : begin_node->second.output_edges)
     {
@@ -27,9 +27,8 @@ static list<map<string, node_m>::iterator> traverse_tour(graph_m& _graph, map<st
       }
     }
   }
-
-  if ((*ret.begin())->first == (*ret.rbegin())->first)
-    ret.erase(--ret.end());
+    
+  //ret.erase(--ret.end());
 
   return ret;
 }
@@ -60,6 +59,9 @@ list<map<string, node_m>::iterator> find_eulerian_cycle(graph_m& _graph)
 
   while (true)
   {
+    if (begin_node == _graph.nodes.end())
+      break;
+
     auto tour = traverse_tour(_graph, begin_node);
 
     if (ret.empty())
@@ -69,19 +71,14 @@ list<map<string, node_m>::iterator> find_eulerian_cycle(graph_m& _graph)
       continue;
     } 
 
-    auto insertion_point = find_insertion_point(_graph, ret);
-    if (insertion_point == _graph.nodes.end())
-      break;
-
-    begin_node = insertion_point;
-
     auto rotation_point = find_if(ret.begin(), ret.end(),
       [&](const map<string, node_m>::iterator it)
     {
-      return it->first == insertion_point->first;
+      return it->first == begin_node->first;
     });
     ret.insert(rotation_point, tour.begin(), tour.end());
 
+    begin_node = find_insertion_point(_graph, ret);
   }
 
   return ret;

@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <list>
+#include <map>
+#include "graph.h"
 #include <string>
 
 using namespace std;
@@ -10,10 +13,8 @@ int main()
 {
   size_t k;
   cin >> k;
-
-  auto ret = get_universal_string(k);
-
-  cout << ret;
+ 
+  cout << get_universal_string(k);
 
   return 0;
 }
