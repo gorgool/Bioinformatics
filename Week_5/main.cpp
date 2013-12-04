@@ -7,14 +7,22 @@
 
 using namespace std;
 
-string get_universal_string(const size_t k);
+string assemble_read_pairs(vector<string>& v);
+vector<string> split_string(const string& s);
 
 int main()
 {
   size_t k;
   cin >> k;
+  cin.ignore();
+
+  string input_string;
+  while (getline(cin, input_string))
+  {
+    vector<string> v = split_string(input_string);
+  }
  
-  cout << get_universal_string(k);
+  cout << assemble_read_pairs(k);
 
   return 0;
 }

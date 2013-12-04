@@ -28,7 +28,7 @@ static list<map<string, node_m>::iterator> traverse_tour(graph_m& _graph, map<st
     }
   }
     
-  //ret.erase(--ret.end());
+  ret.erase(--ret.end());
 
   return ret;
 }

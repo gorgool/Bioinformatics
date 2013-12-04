@@ -51,7 +51,7 @@ static void gen_graph(graph_m& g, const size_t k)
   } while (true);
 }
 
-string string_reconstruct(graph_m& g);
+string string_reconstruct(graph_m& g, const size_t k);
 
 string get_universal_string(const size_t k)
 {
@@ -59,5 +59,5 @@ string get_universal_string(const size_t k)
   graph_m g;
   gen_graph(g, k);
 
-  return string_reconstruct(g);
+  return string_reconstruct(g, k);
 }
