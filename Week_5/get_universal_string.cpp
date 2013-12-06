@@ -27,7 +27,7 @@ static string get_next(const string& prev)
   return ret;
 }
 
-static void gen_graph(graph_m& g, const size_t k)
+static void gen_graph(graph& g, const size_t k)
 {
   string k_mer(k, '0');
   do
@@ -36,12 +36,12 @@ static void gen_graph(graph_m& g, const size_t k)
     string to_name(k_mer.begin() + 1, k_mer.end());
 
     if (g.nodes.find(from_name) == g.nodes.end())
-      g.nodes.insert({ from_name, node_m{} });
+      g.nodes.insert({ from_name, node{} });
 
     if (g.nodes.find(to_name) == g.nodes.end())
-      g.nodes.insert({ to_name, node_m{} });
+      g.nodes.insert({ to_name, node{} });
     
-    g.nodes[from_name].output_edges.push_back(edge_m{ k_mer, g.nodes.find(to_name), false });
+    g.nodes[from_name].output_edges.push_back(edge{ k_mer, g.nodes.find(to_name), false });
 
     if (k_mer == string(k, '1'))
       break;
@@ -51,12 +51,12 @@ static void gen_graph(graph_m& g, const size_t k)
   } while (true);
 }
 
-string string_reconstruct(graph_m& g, const size_t k);
+string string_reconstruct(graph& g, const size_t k);
 
 string get_universal_string(const size_t k)
 {
   // Generate graph
-  graph_m g;
+  graph g;
   gen_graph(g, k);
 
   return string_reconstruct(g, k);

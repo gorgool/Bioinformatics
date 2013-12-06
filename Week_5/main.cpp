@@ -1,28 +1,23 @@
 #include <iostream>
 #include <vector>
-#include <list>
-#include <map>
-#include "graph.h"
 #include <string>
 
 using namespace std;
 
-string assemble_read_pairs(vector<string>& v);
-vector<string> split_string(const string& s);
+vector<string> contig_generation(const vector<string>& v);
 
 int main()
 {
-  size_t k;
-  cin >> k;
-  cin.ignore();
-
+  vector<string> input_text;
   string input_string;
   while (getline(cin, input_string))
   {
-    vector<string> v = split_string(input_string);
+    input_text.push_back(input_string);
   }
  
-  cout << assemble_read_pairs(k);
+  auto ret = contig_generation(input_text);
+  for (const auto& item : ret)
+    cout << item << endl;
 
   return 0;
 }
