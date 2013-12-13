@@ -38,7 +38,7 @@ static string string_gen(const vector<map<string, node>::iterator>& path)
 
   while (true)
   {
-    if (distance(it, path.end()) > (*path.begin())->first.size())
+    if (static_cast<size_t>(distance(it, path.end())) > (*path.begin())->first.size())
     {
       advance(it, (*path.begin())->first.size());
       ret += (*it)->first;
