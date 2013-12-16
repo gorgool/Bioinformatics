@@ -54,7 +54,7 @@ static int traverse_path(graph& g, map<string, node>::iterator n)
 {
   int ret = 0;
   vector<int> weights;
-  for (const auto input_edge : n->second.input_edges)
+  for (const auto& input_edge : n->second.input_edges)
   {
     auto key = input_edge.to->first;
     if (memo.find(key) == memo.end())

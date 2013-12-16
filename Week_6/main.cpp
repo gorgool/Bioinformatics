@@ -1,17 +1,22 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <tuple>
 
 using namespace std;
 
-string LCSubsequence(const string& s, const string& t);
+tuple<int, string, string> global_alignment(string& s1, string& s2);
 
 int main()
 {
-  string s, t;
-  cin >> s >> t;
+  string s1, s2;
+  cin >> s1 >> s2;
 
-  auto ret = LCSubsequence(s, t);
-  cout << ret;
+  auto ret = global_alignment(s1, s2);
+
+  cout << get<0>(ret) << endl;
+  cout << get<1>(ret) << endl;
+  cout << get<2>(ret);
 
   return 0;
 }
