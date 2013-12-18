@@ -5,14 +5,14 @@
 
 using namespace std;
 
-tuple<int, string, string> global_alignment(string& s1, string& s2);
+tuple<int, string, string> local_alignment(string& s1, string& s2);
 
 int main()
 {
   string s1, s2;
   cin >> s1 >> s2;
 
-  auto ret = global_alignment(s1, s2);
+  auto ret = local_alignment(s1, s2);
 
   cout << get<0>(ret) << endl;
   cout << get<1>(ret) << endl;

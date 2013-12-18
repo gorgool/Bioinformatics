@@ -1,10 +1,11 @@
 #include <string>
-#include <fstream>
 #include <vector>
 #include <tuple>
 #include <map>
-#include "graph.h"
 #include <algorithm>
+#include <fstream>
+#include "graph.h"
+#include <iostream>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ string to_key(const size_t i, const size_t j);
 
 static void gen_matrix(map<string, int>& m)
 {
-  string matrix_file = "blosum.dat";
+  string matrix_file = "pam.dat";
   vector<string> alphabeth = { "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y" };
   ifstream f(matrix_file);
   string temp;
@@ -39,6 +40,16 @@ static void gen_graph(graph& g, map<string, int>& m, const string& s1, const str
   {
     for (size_t j = 0; j < s2.length() + 1; j++)
     {
+      // Add edge from source to every node, and from every node to sink
+      if ( !(i == 0 && j == 0) && !(i == s1.length() && j == s2.length()))
+      {
+        g.nodes[to_key(0, 0)].output_edges.push_back(edge(0, g.nodes.find(to_key(i, j))));
+        g.nodes[to_key(i, j)].input_edges.push_back(edge(0, g.nodes.find(to_key(0, 0))));
+
+        g.nodes[to_key(s1.length(), s2.length())].input_edges.push_back(edge(0, g.nodes.find(to_key(i, j))));
+        g.nodes[to_key(i, j)].output_edges.push_back(edge(0, g.nodes.find(to_key(s1.length(), s2.length()))));
+      }
+
       if (i < s1.length() && j < s2.length())
       {
         g.nodes[to_key(i + 1, j + 1)];
@@ -48,33 +59,32 @@ static void gen_graph(graph& g, map<string, int>& m, const string& s1, const str
 
         string key{ s1[i], s2[j] };
 
-        
         // Deletion
         g.nodes[to_key(i, j)].output_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j + 1)), deletion, '-'));
         // Insertion
-        g.nodes[to_key(i, j)].output_edges.push_back(edge( sigma, g.nodes.find(to_key(i + 1, j)), insertion));
+        g.nodes[to_key(i, j)].output_edges.push_back(edge(sigma, g.nodes.find(to_key(i + 1, j)), insertion));
         // Matches
         g.nodes[to_key(i, j)].output_edges.push_back(edge(m[key], g.nodes.find(to_key(i + 1, j + 1)), matches, s1[i] == s2[j] ? s1[i] : s2[j]));
-        
+
         // Deletion
         g.nodes[to_key(i + 1, j)].input_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j)), deletion, '-'));
         // Insertion
-        g.nodes[to_key(i, j + 1)].input_edges.push_back(edge( sigma, g.nodes.find(to_key(i, j)), insertion));
+        g.nodes[to_key(i, j + 1)].input_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j)), insertion));
         // Matches
         g.nodes[to_key(i + 1, j + 1)].input_edges.push_back(edge(m[key], g.nodes.find(to_key(i, j)), matches, s1[i]));
-        
+
       }
 
       if (i == s1.length() && j != s2.length())
       {
-        g.nodes[to_key(i, j)].output_edges.push_back(edge( sigma, g.nodes.find(to_key(i, j + 1)), deletion));
-        g.nodes[to_key(i, j + 1)].input_edges.push_back(edge( sigma, g.nodes.find(to_key(i, j)), insertion));
+        g.nodes[to_key(i, j)].output_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j + 1)), deletion));
+        g.nodes[to_key(i, j + 1)].input_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j)), insertion));
       }
 
       if (j == s2.length() && i != s1.length())
       {
-        g.nodes[to_key(i, j)].output_edges.push_back(edge( sigma, g.nodes.find(to_key(i + 1, j)), insertion));
-        g.nodes[to_key(i + 1, j)].input_edges.push_back(edge( sigma, g.nodes.find(to_key(i, j)), deletion));
+        g.nodes[to_key(i, j)].output_edges.push_back(edge(sigma, g.nodes.find(to_key(i + 1, j)), insertion));
+        g.nodes[to_key(i + 1, j)].input_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j)), deletion));
       }
     }
   }
@@ -111,10 +121,15 @@ static int traverse_path(graph& g, map<string, node>::iterator n)
   return ret;
 }
 
+static pair<size_t, size_t> key_to_idx(const string& key)
+{
+  size_t pos = key.find(",");
+  return make_pair(stoi(key.substr(0, pos)), stoi(key.substr(pos + 1)));
+}
+
 static pair<string, string> backtrace(const graph& g, map<string, node>::iterator n, const string& s1, const string& s2)
 {
   auto it = n;
-  size_t idx_s1 = 0, idx_s2 = 0;
   string ret1, ret2;
   while (true)
   {
@@ -122,31 +137,29 @@ static pair<string, string> backtrace(const graph& g, map<string, node>::iterato
     {
       if (e.visited == true)
       {
+        auto idx = key_to_idx(e.to->first);
         switch (e.type)
         {
           case deletion:
-          {   
-            ret1 += s1[s1.length() - 1 - idx_s1];
-            idx_s1++;
+          {
+            ret1 += s1[idx.first];
             ret2 += '-';
             break;
-          } 
+          }
           case matches:
-          {  
-            ret1 += s1[s1.length() - 1 - idx_s1];
-            idx_s1++;
-            ret2 += s2[s2.length() - 1 - idx_s2];
-            idx_s2++;
+          {
+            ret1 += s1[idx.first];
+            ret2 += s2[idx.second];
             break;
           }
           case insertion:
-          {        
-            ret2 += s2[s2.length() - 1 - idx_s2];
-            idx_s2++;
+          {
+            ret2 += s2[idx.second];
             ret1 += '-';
             break;
-          }  
+          }
         }
+
         it = e.to;
         break;
       }
@@ -159,18 +172,41 @@ static pair<string, string> backtrace(const graph& g, map<string, node>::iterato
   return make_pair(string(ret1.rbegin(), ret1.rend()), string(ret2.rbegin(), ret2.rend()));
 }
 
-tuple<int, string, string> global_alignment(string& s1, string& s2)
+static int comp_score(const string& s1, const string& s2, map<string, int>& m)
+{
+  size_t idx = 0;
+  int score = 0;
+  while (idx < s1.length())
+  {
+    if (s1[idx] == '-' || s2[idx] == '-')
+      score += -5;
+    else
+    {
+      string key{ s1[idx], s2[idx] };
+      score += m[key];
+    }
+      
+    idx++;
+  }
+
+  return score;
+}
+
+tuple<int, string, string> local_alignment(string& s1, string& s2)
 {
   if (s1.length() < s2.length())
     swap(s1, s2);
 
-  map<string, int> BLOSUM_matrix;
-  gen_matrix(BLOSUM_matrix);
+  map<string, int> PAM_matrix;
+  gen_matrix(PAM_matrix);
+
   graph g;
-  gen_graph(g, BLOSUM_matrix, s1, s2);
+  gen_graph(g, PAM_matrix, s1, s2);
 
   auto score = traverse_path(g, g.nodes.find(to_key(s1.length(), s2.length())));
-  auto str = backtrace(g, g.nodes.find(to_key(s1.length(), s2.length())), s1, s2);
+  auto ret = backtrace(g, g.nodes.find(to_key(s1.length(), s2.length())), s1, s2);
 
-  return make_tuple(score, str.first, str.second);
+  cout << comp_score(ret.first, ret.second, PAM_matrix) << endl;
+
+  return make_tuple(score, ret.second, ret.first);
 }
