@@ -34,7 +34,7 @@ static void gen_matrix(map<string, int>& m)
 
 static void gen_graph(graph& g, map<string, int>& m, const string& s1, const string& s2)
 {
-  const int sigma = -5;
+  const int sigma = -1;
 
   for (size_t i = 0; i < s1.length() + 1; i++)
   {
@@ -72,7 +72,6 @@ static void gen_graph(graph& g, map<string, int>& m, const string& s1, const str
         g.nodes[to_key(i, j + 1)].input_edges.push_back(edge(sigma, g.nodes.find(to_key(i, j)), insertion));
         // Matches
         g.nodes[to_key(i + 1, j + 1)].input_edges.push_back(edge(m[key], g.nodes.find(to_key(i, j)), matches, s1[i]));
-
       }
 
       if (i == s1.length() && j != s2.length())

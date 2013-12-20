@@ -7,7 +7,7 @@ using namespace std;
 string to_key(const size_t i, const size_t j)
 {
   return to_string(i) + "," + to_string(j);
-}
+};
 
 static void gen_graph(graph& g, const string& s1, const string& s2)
 {
