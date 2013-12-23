@@ -1,6 +1,6 @@
 #include <string>
 #include <tuple>
-#include "graph.h"
+#include "graph_fitting.h"
 #include <algorithm>
 #include <thread>
 #include <iostream>
@@ -135,12 +135,12 @@ static pair<string, string> backtrace(map<string, node>::iterator n, const strin
 
 tuple<int, string, string> fitting_alignment(const string& s1, const string& s2)
 {
-  L3_graph g;
+  L3_fitting_graph g;
   g.node_initializing(s1.length(), s2.length());
   g.gen_graph(s1, s2);
 
-  auto score = traverse_path(g.g_middle.nodes.find(to_key(9, 6)));
-  auto ret = backtrace(g.g_middle.nodes.find(to_key(9, 6)), s1, s2);
+  auto score = traverse_path(g.g_middle.nodes.find(to_key(s1.length(), s2.length())));
+  auto ret = backtrace(g.g_middle.nodes.find(to_key(s1.length(), s2.length())), s1, s2);
 
   return make_tuple(score, ret.first, ret.second);
 }

@@ -1,5 +1,5 @@
 #include <string>
-#include "graph.h"
+#include "graph_fitting.h"
 #include <algorithm>
 
 using namespace std;
