@@ -72,11 +72,8 @@ vector<int> get_middle_column(const string& s1, const string& s2, map<string, in
   return prev_column;
 }
 
-pair<pair<size_t, size_t>, pair<size_t, size_t>> find_middle_edge(const string& s1, const string& s2)
+pair<pair<size_t, size_t>, pair<size_t, size_t>> find_middle_edge(const string& s1, const string& s2, map<string, int> score_mat)
 {
-  map<string, int> score_mat;
-  gen_matrix(score_mat);
-
   size_t middle_point = (s1.length() + 1) / 2;
 
   auto forward_column = get_middle_column(s1, s2, score_mat, middle_point - 1);
@@ -92,3 +89,12 @@ pair<pair<size_t, size_t>, pair<size_t, size_t>> find_middle_edge(const string& 
 
   return make_pair(make_pair(min_idx, middle_point - 1), make_pair(min_idx + 1, middle_point));
 }
+
+pair<pair<size_t, size_t>, pair<size_t, size_t>> find_middle_edge(const string& s1, const string& s2)
+{
+  map<string, int> score_mat;
+  gen_matrix(score_mat);
+
+  return find_middle_edge(s1, s2, score_mat);
+}
+
