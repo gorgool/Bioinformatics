@@ -78,6 +78,7 @@ int main()
   getline(cin, input);
   parse_seq(input, P);
 
+  // 9671
   cout << breakpoint_distance(Q, P);
 
   return 0;

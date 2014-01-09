@@ -1,38 +1,29 @@
 #include <vector>
 #include <list>
 #include "graph.h"
+#include <unordered_set>
+#include <iostream>
 
 using namespace std;
 
 static void connect(const int from, const int to, edge_type t, graph& g)
 {
   int from_abs = abs(from), to_abs = abs(to);
+  auto e = edge(g.nodes.find(to_abs), g.nodes.find(from_abs), neg, pos, t);
   if (to > 0)
   {
-    if (from > 0)
-    {
-      g.nodes[from_abs].positive_edges.push_back(edge(g.nodes.find(to_abs), t));
-      g.nodes[to_abs].negative_edges.push_back(edge(g.nodes.find(from_abs), t));
-    }
-    else
-    {
-      g.nodes[from_abs].negative_edges.push_back(edge(g.nodes.find(to_abs), t));
-      g.nodes[to_abs].negative_edges.push_back(edge(g.nodes.find(from_abs), t));
-    }
+    if (from < 0)
+      e.from_sign = neg;
   }
   else
   {
-    if (from > 0)
-    {
-      g.nodes[from_abs].positive_edges.push_back(edge(g.nodes.find(to_abs), t));
-      g.nodes[to_abs].positive_edges.push_back(edge(g.nodes.find(from_abs), t));
-    }
-    else
-    {
-      g.nodes[from_abs].negative_edges.push_back(edge(g.nodes.find(to_abs), t));
-      g.nodes[to_abs].positive_edges.push_back(edge(g.nodes.find(from_abs), t));
-    }
+    e.to_sign = pos;
+    if (from < 0)
+      e.from_sign = neg;
   }
+  g.nodes[from_abs].edges.push_back(e);
+  swap(e.from, e.to); swap(e.from_sign, e.to_sign);
+  g.nodes[to_abs].edges.push_back(e);
 }
 
 static void gen_graph_Q(graph& g, const list<vector<int>>& seq)
@@ -60,23 +51,47 @@ static void gen_graph_P(graph& g, const list<vector<int>>& seq)
   }
 }
 
-static int traverse_graph(graph& g)
+static void traverse_cycle(edge& from, graph& g)
+{
+  from.visited = true;
+  //for (auto& e : from.to->second.edges) 
+  //  if (e.to == from.from && e.type == from.type) 
+  //    e.visited = true;
+
+  for (auto& e : from.to->second.edges)
+  {
+    if (e.type != from.type && e.from_sign == from.to_sign && e.visited == false)
+      traverse_cycle(e, g);
+  }
+}
+
+static int compute_cycles(graph& g)
 {
   int ret = 0;
   for (auto& node : g.nodes)
   {
-    if (!node.second.visited)
+    for (auto& e : node.second.edges)
     {
-      ret++;
-      auto it = node.second.positive_edges[0].to;
-      while (it->second.visited != true)
+      if (!e.visited)
       {
-        it->second.positive_edges[0]
+        traverse_cycle(e, g);
+        ret++;
       }
     }
   }
+  return ret;
 }
 
+static int compute_blocks(const list<vector<int>>& Q)
+{
+  unordered_set<int> temp;
+  for (const auto& seq : Q)
+  {
+    for (const auto item : seq)
+      temp.insert(abs(item));
+  }
+  return temp.size();
+}
 
 size_t breakpoint_distance(const list<vector<int>>& Q, const list<vector<int>>& P)
 {
@@ -84,7 +99,6 @@ size_t breakpoint_distance(const list<vector<int>>& Q, const list<vector<int>>& 
   gen_graph_Q(g, Q);
   gen_graph_P(g, P);
 
-  int ret = traverse_graph(g);
-
-  return 0;
+  // # of cycles 2 times larger due to input and output edges which were computed 2 times 
+  return compute_blocks(Q) - compute_cycles(g) / 2;
 }

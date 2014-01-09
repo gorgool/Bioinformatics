@@ -7,20 +7,36 @@
 struct node;
 
 enum edge_type { red, blue };
+enum edge_sign { pos, neg };
 
 struct edge
 {
   std::map<int, node>::iterator to;
+  std::map<int, node>::iterator from;
+
   edge_type type;
-  edge(std::map<int, node>::iterator _to, edge_type _type) : to(_to), type(_type) {}
+
+  edge_sign to_sign;
+  edge_sign from_sign;
+
+  bool visited = false;
+  
+  edge(
+    std::map<int, node>::iterator _to,
+    std::map<int, node>::iterator _from,
+    edge_sign _to_sign, edge_sign _from_sign,
+    edge_type _type) : 
+    to(_to),
+    from(_from),
+    to_sign(_to_sign),
+    from_sign(_from_sign),
+    type(_type) {}
 };
 
 struct node
 {
   int value = 0;
-  bool visited = false;
-  std::vector<edge> positive_edges;
-  std::vector<edge> negative_edges;
+  std::vector<edge> edges;
 };
 
 struct graph
