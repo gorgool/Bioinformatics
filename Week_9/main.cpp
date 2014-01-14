@@ -5,14 +5,16 @@
 
 using namespace std;
 
-string longest_repeat(const string& text);
+suffix_tree suffix_tree_construct(const string& text);
+void print_tree(const suffix_tree& t);
 
 int main()
 {
   string text;
   cin >> text;
 
-  cout << longest_repeat(text);
-  
+  auto ret = suffix_tree_construct(text);
+  print_tree(ret);
+
   return 0;
 }

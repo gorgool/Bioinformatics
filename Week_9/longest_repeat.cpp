@@ -1,19 +1,35 @@
 #include <string>
-#include <algorithm>
 #include "trie.h"
 
 using namespace std;
 
-static void traverse(map<char, leaf_light>::iterator next, const string& s, vector<string>& seq)
+static bool check_leaf(leaf_light* l)
 {
-  string repeat_str = s + next->second.symbol;
-
-  if (next->second.childs.size() > 1)
-    seq.push_back(repeat_str);
-
-  for (auto it = next->second.childs.begin(); it != next->second.childs.end(); ++it)
+  size_t counter = 0;
+  for (size_t i = 0; i < 5; i++)
   {
-    traverse(it, repeat_str, seq);
+    if (l->childs[i] != nullptr)
+      counter++;
+    if (counter > 1)
+      return true;
+  }
+  return false;
+}
+
+static void traverse(leaf_light* next, const string& s, string& seq)
+{
+  string repeat_str = s + next->symbol;
+
+  if (check_leaf(next))
+  {
+    if (seq.length() < repeat_str.length())
+      seq = repeat_str;
+  }
+
+  for (size_t i = 0; i < 5; i++)
+  {
+    if (next->childs[i] != nullptr)
+      traverse(next->childs[i], repeat_str, seq);
   }
 }
 
@@ -24,14 +40,12 @@ string longest_repeat(const string& text)
   for (size_t i = 0; i < text.size(); i++)
     t.process_word(text.substr(i));
 
-  vector<string> seq;
-
-  for (auto it = t.root.childs.begin(); it != t.root.childs.end(); ++it)
+  string ret;
+  for (size_t i = 0; i < 5; i++)
   {
-    traverse(it, "", seq);
+    if (t.root.childs[i] != nullptr)
+      traverse(t.root.childs[i], "", ret);
   }
 
-  sort(seq.begin(), seq.end(), [](const string& lhs, const string& rhs) { return lhs.size() < rhs.size(); });
-
-  return *seq.rbegin();
+  return ret;
 }
