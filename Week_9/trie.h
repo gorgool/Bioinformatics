@@ -146,12 +146,10 @@ struct trie_light
 
 struct suffix_node
 {
-  std::string::iterator from;
-  size_t len;
-
+  std::string text;
   suffix_node* childs[5];
   
-  suffix_node(std::string::iterator _from, size_t _len) : from(_from), len(_len) { for (size_t i = 0; i < 5; i++) childs[i] = nullptr; }
+  suffix_node(std::string _text) : text(_text) { for (size_t i = 0; i < 5; i++) childs[i] = nullptr; }
 };
 
 struct suffix_tree
@@ -160,27 +158,47 @@ struct suffix_tree
 
   suffix_tree() { for (size_t i = 0; i < 5; i++) childs[i] = nullptr; }
 
-  size_t find_branch(std::string::iterator from, const std::string& pattern)
-  {
-    size_t idx = 0;
-    while (pattern[idx] != *from) { idx++, from++; }
-    return idx;
-  }
-
-
   void process_word(std::string& s)
   {
     // If exist
     if (childs[tbl[s[0]]] != nullptr)
     {
-      //finding branch point
-      auto branch_point = find_branch(childs[tbl[s[0]]]->from, s);
+      size_t pattern_idx = 0;
+      size_t text_idx = 0;
+      auto next_node = childs[tbl[s[0]]];
+      while (next_node->text[text_idx] == s[pattern_idx])
+      {
+        pattern_idx++;
+        text_idx++;
+        if (text_idx == next_node->text.length())
+        {
+          if (next_node->childs[tbl[s[pattern_idx]]] != nullptr)
+          {
+            next_node = next_node->childs[tbl[s[pattern_idx]]];
+            text_idx = 0;
+          }   
+          else
+          {
+            next_node->childs[tbl[s[pattern_idx]]] = new suffix_node(s.substr(pattern_idx));
+            return;
+          } 
+        }
+      }
+
+      auto brach_text = next_node->text;
+      auto new_text = brach_text.substr(0, text_idx);
+      auto new_branch_text = brach_text.substr(text_idx);
+      auto new_pattern_text = s.substr(pattern_idx);
+
+      next_node->text = new_text;
+      next_node->childs[tbl[new_branch_text[0]]] = new suffix_node(new_branch_text);
+      next_node->childs[tbl[new_pattern_text[0]]] = new suffix_node(new_pattern_text);
     }
     // If not
     else
     {
-      // Add new leaf
-      childs[tbl[s[0]]] = new suffix_node(s.begin(), s.length());
+      // Add new node
+      childs[tbl[s[0]]] = new suffix_node(s);
     }
   }
 };

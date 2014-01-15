@@ -5,7 +5,7 @@
 
 using namespace std;
 
-suffix_tree suffix_tree_construct(const string& text);
+suffix_tree suffix_tree_construct(string& text);
 void print_tree(const suffix_tree& t);
 
 int main()
