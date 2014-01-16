@@ -150,6 +150,10 @@ struct suffix_node
   suffix_node* childs[5];
   
   suffix_node(std::string _text) : text(_text) { for (size_t i = 0; i < 5; i++) childs[i] = nullptr; }
+  suffix_node(std::string _text, suffix_node** _childs) : text(_text) 
+  { 
+    for (size_t i = 0; i < 5; i++) childs[i] = _childs[i];   
+  }
 };
 
 struct suffix_tree
@@ -157,6 +161,14 @@ struct suffix_tree
   suffix_node* childs[5];
 
   suffix_tree() { for (size_t i = 0; i < 5; i++) childs[i] = nullptr; }
+  ~suffix_tree() { /* TODO: MEAMORY LEAK. ADD NODE DELETION */ }
+
+  bool empty(suffix_node** _childs)
+  {
+    for (size_t i = 0; i < 5; i++) 
+      if (_childs[i] != nullptr) return false;
+      return true;
+  }
 
   void process_word(std::string& s)
   {
@@ -191,8 +203,24 @@ struct suffix_tree
       auto new_pattern_text = s.substr(pattern_idx);
 
       next_node->text = new_text;
-      next_node->childs[tbl[new_branch_text[0]]] = new suffix_node(new_branch_text);
-      next_node->childs[tbl[new_pattern_text[0]]] = new suffix_node(new_pattern_text);
+      
+      // If braching node has no childs
+      if (empty(next_node->childs))
+      {
+        next_node->text = new_text;
+        next_node->childs[tbl[new_branch_text[0]]] = new suffix_node(new_branch_text);
+        next_node->childs[tbl[new_pattern_text[0]]] = new suffix_node(new_pattern_text);
+      }
+      else
+      {
+        // Create new node
+        suffix_node* new_node = new suffix_node(new_branch_text, next_node->childs);
+
+        next_node->text = new_text;
+        for (size_t i = 0; i < 5; i++) next_node->childs[i] = nullptr;
+        next_node->childs[tbl[new_branch_text[0]]] = new_node;
+        next_node->childs[tbl[new_pattern_text[0]]] = new suffix_node(new_pattern_text);
+      }
     }
     // If not
     else

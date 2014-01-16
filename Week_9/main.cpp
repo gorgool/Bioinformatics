@@ -1,20 +1,16 @@
 #include <iostream>
 #include <string>
-#include <vector>
-#include "trie.h"
 
 using namespace std;
 
-suffix_tree suffix_tree_construct(string& text);
-void print_tree(const suffix_tree& t);
+string shortest_nonshared_substr(const string& s1, const string& s2);
 
 int main()
 {
-  string text;
-  cin >> text;
+  string s1, s2;
+  cin >> s1 >> s2;
 
-  auto ret = suffix_tree_construct(text);
-  print_tree(ret);
+  cout << shortest_nonshared_substr(s1, s2);
 
   return 0;
 }
