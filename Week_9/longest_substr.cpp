@@ -43,10 +43,9 @@ string longest_substr(const string& s1, const string& s2)
 
   // Slice longest
   size_t max_len = repeats.rbegin()->length();
-  auto last_item = remove_if(repeats.begin(), repeats.end(), [max_len](const string& s){ return s.length() < max_len; });
 
   // Check if repetition appeared in both strings
-  for (auto it = repeats.begin(); it != last_item; it++)
+  for (auto it = repeats.rbegin(); it != repeats.rend(); it++)
   {
     if (s1.find(*it) != string::npos && s2.find(*it) != string::npos)
       return *it;
