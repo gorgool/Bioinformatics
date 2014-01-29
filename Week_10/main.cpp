@@ -1,23 +1,22 @@
 #include <iostream>
 #include <string>
-#include "split_string.hpp"
+#include <vector>
 
 using namespace std;
 
-vector<size_t> BWT_matching(const string& bwt, const vector<string>& patterns);
+vector<pair<size_t, size_t>> partial_suff_array(const string& text, const size_t k);
 
 int main()
 {
-  string text, buff;
-  cin >> text; cin.ignore();
-  getline(cin, buff);
+  string text;
+  cin >> text;
+  size_t k;
+  cin >> k;
 
-  vector<string> patterns = split_string<string, ' '>(buff);
+  auto ret = partial_suff_array(text, k);
 
-  auto ret = BWT_matching(text, patterns);
-
-  for (const auto idx : ret)
-    cout << idx << " ";
+  for (const auto var : ret)
+    cout << var.first << "," << var.second << endl;
 
   return 0;
 }
