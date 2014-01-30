@@ -36,38 +36,11 @@ static bool check(const size_t top, const size_t bottom, const char symbol, cons
   return false;
 }
 
-static vector<pair<char, size_t>> to_column(const string& text)
-{
-  vector<pair<char, size_t>> ret;
-  map<char, size_t> idx_tbl;
-  for (const auto letter : text)
-  {
-    ret.push_back(make_pair(letter, idx_tbl[letter]));
-    idx_tbl[letter]++;
-  }
-  return ret;
-}
-
-static size_t get_idx(const vector<pair<char, size_t>>& text, const char letter, const size_t pos)
-{
-  size_t ret = 0;
-  while (true)
-  {
-    if (text[ret].first == letter && text[ret].second == pos)
-      return ret;
-    ret++;
-  }
-}
-
 vector<size_t> BWT_matching_ench(const string& bwt, const vector<string>& patterns)
 {
-  
   vector<size_t> ret(patterns.size());
-  
-  auto last_column = to_column(bwt);
   auto head = bwt;
   stable_sort(head.begin(), head.end());
-  auto first_column = to_column(head);
 
   auto worker = [&](const vector<size_t>& ids)
   {

@@ -4,19 +4,23 @@
 
 using namespace std;
 
-vector<pair<size_t, size_t>> partial_suff_array(const string& text, const size_t k);
+vector<size_t> pattern_matching(const string& text, const vector<string>& patterns);
 
 int main()
 {
-  string text;
-  cin >> text;
-  size_t k;
-  cin >> k;
+  string text, buff;
+  cin >> text; cin.ignore();
+  
+  vector<string> patterns;
+  while (getline(cin, buff))
+  {
+    patterns.push_back(buff);
+  }
 
-  auto ret = partial_suff_array(text, k);
+  auto ret = pattern_matching(text, patterns);
 
   for (const auto var : ret)
-    cout << var.first << "," << var.second << endl;
+    cout << var << " ";
 
   return 0;
 }
