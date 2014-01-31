@@ -53,7 +53,7 @@ static size_t first_occurance(const char symbol, const string& text)
 
 static bool check(const size_t top, const size_t bottom, const char symbol, const string& text)
 {
-  for (int idx = top; idx <= bottom; idx++)
+  for (size_t idx = top; idx <= bottom; idx++)
   {
     if (text[idx] == symbol)
       return true;
@@ -120,10 +120,6 @@ vector<size_t> pattern_matching(const string& text, const vector<string>& patter
     {
       for (size_t i = top; i <= bottom; i++)
       {
-
-
-
-
         ret.push_back(suffix_array[i]);
       }
     }
