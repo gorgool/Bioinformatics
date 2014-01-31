@@ -22,8 +22,8 @@ int main()
   vector<size_t> lcp = split_string<size_t, ' ', ','>(lcp_text);
 
   
-  //auto ret = to_suffix_tree(text, sa, lcp);
-  auto ret = suffix_tree_construct(text);
+  auto ret = to_suffix_tree(text, sa, lcp);
+  //auto ret = suffix_tree_construct(text);
   print_tree(ret);
 
   return 0;

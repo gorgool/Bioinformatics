@@ -39,11 +39,20 @@ suffix_tree to_suffix_tree(const string& text, const vector<size_t>& suffix_arra
           next_node->childs[tbl[text[suffix_array[i] + lcp[i]]]] = new suffix_node(text.substr(suffix_array[i] + lcp[i]));
         else
         {
-          auto temp = new suffix_node(next_node->text.substr(lcp[i] - prev_len), next_node->childs);
-          for (size_t i = 0; i < 5; i++) next_node->childs[i] = nullptr;
-          next_node->childs[tbl[next_node->text[lcp[i] - prev_len]]] = temp;
-          next_node->childs[tbl[text[suffix_array[i] + lcp[i]]]] = new suffix_node(text.substr(suffix_array[i] + lcp[i]));
-          next_node->text = next_node->text.substr(0, lcp[i] - prev_len);
+          if (t.empty(next_node->childs))
+          {
+            next_node->childs[tbl[next_node->text[lcp[i] - prev_len]]] = new suffix_node(next_node->text.substr(lcp[i] - prev_len));
+            next_node->childs[tbl[text[suffix_array[i] + lcp[i]]]] = new suffix_node(text.substr(suffix_array[i] + lcp[i]));
+            next_node->text = next_node->text.substr(0, lcp[i] - prev_len);
+          }
+          else
+          {
+            auto temp = new suffix_node(next_node->text.substr(lcp[i] - prev_len), next_node->childs);
+            for (size_t i = 0; i < 5; i++) next_node->childs[i] = nullptr;
+            next_node->childs[tbl[next_node->text[lcp[i] - prev_len]]] = temp;
+            next_node->childs[tbl[text[suffix_array[i] + lcp[i]]]] = new suffix_node(text.substr(suffix_array[i] + lcp[i]));
+            next_node->text = next_node->text.substr(0, lcp[i] - prev_len);
+          }
         }
       }
       else

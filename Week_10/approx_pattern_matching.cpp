@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <iostream>
 
 using namespace std;
 
@@ -95,6 +96,7 @@ static size_t max_num_misses(const string& input, const string& original)
 vector<size_t> approx_pattern_matching(const string& text, const vector<string>& patterns, const size_t k)
 {
   vector<size_t> ret;
+  
   auto bwt = BWT(text + "$");
   auto head = bwt;
   std::sort(head.begin(), head.end());
@@ -156,11 +158,15 @@ vector<size_t> approx_pattern_matching(const string& text, const vector<string>&
       {
         for (size_t i = top; i <= bottom; i++)
         {
-          size_t pos = suffix_array[i];
-          auto substr = text.substr(pos - offset, pattern.length());
+          int pos = suffix_array[i] - offset;
+
+          if (pos < 0 || (pos + pattern.length()) > text.length())
+            continue;
+
+          auto substr = text.substr(pos, pattern.length());
 
           if (max_num_misses(substr, pattern) <= k && substr.length() == pattern.length())
-            positions.insert(pos - offset);
+            positions.insert(pos);
         }
       }
       offset += seed.length();
